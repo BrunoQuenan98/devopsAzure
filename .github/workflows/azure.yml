@@ -8,10 +8,8 @@ jobs:
       # Checkout code
       - uses: actions/checkout@v3
 
-      - name: Verify Azure CLI
-        run: |
-          az account show
-          az account list -o table
+      - name: Verify Secrets
+        run: echo ${{ secrets.AZURE_CREDENTIALS }}
 
       # Log into Azure
       - name: Azure Login
