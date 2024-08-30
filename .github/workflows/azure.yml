@@ -13,21 +13,28 @@ jobs:
         run: |
           echo "Verifying AZURE_CREDENTIALS structure..."
           CREDS='${{ secrets.AZURE_CREDENTIALS }}'
+          if [ -z "$CREDS" ]; then
+            echo "Error: AZURE_CREDENTIALS is empty"
+            exit 1
+          fi
+          
           if ! echo "$CREDS" | jq -e '.clientId and .clientSecret and .subscriptionId and .tenantId' > /dev/null; then
             echo "Error: AZURE_CREDENTIALS is missing required fields"
+            echo "Fields present: $(echo "$CREDS" | jq 'keys')"
             exit 1
           fi
           echo "AZURE_CREDENTIALS structure is correct"
           
           echo "Verifying field lengths..."
-          CLIENT_ID_LENGTH=$(echo "$CREDS" | jq -r '.clientId | length')
-          TENANT_ID_LENGTH=$(echo "$CREDS" | jq -r '.tenantId | length')
-          SUBSCRIPTION_ID_LENGTH=$(echo "$CREDS" | jq -r '.subscriptionId | length')
-          echo "Client ID length: $CLIENT_ID_LENGTH"
-          echo "Tenant ID length: $TENANT_ID_LENGTH"
-          echo "Subscription ID length: $SUBSCRIPTION_ID_LENGTH"
+          CLIENT_ID=$(echo "$CREDS" | jq -r '.clientId')
+          TENANT_ID=$(echo "$CREDS" | jq -r '.tenantId')
+          SUBSCRIPTION_ID=$(echo "$CREDS" | jq -r '.subscriptionId')
           
-          if [ "$CLIENT_ID_LENGTH" -lt 10 ] || [ "$TENANT_ID_LENGTH" -lt 10 ] || [ "$SUBSCRIPTION_ID_LENGTH" -lt 10 ]; then
+          echo "Client ID length: ${#CLIENT_ID}"
+          echo "Tenant ID length: ${#TENANT_ID}"
+          echo "Subscription ID length: ${#SUBSCRIPTION_ID}"
+          
+          if [ ${#CLIENT_ID} -lt 10 ] || [ ${#TENANT_ID} -lt 10 ] || [ ${#SUBSCRIPTION_ID} -lt 10 ]; then
             echo "Error: One or more fields in AZURE_CREDENTIALS seem too short"
             exit 1
           fi
