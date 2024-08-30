@@ -8,6 +8,11 @@ jobs:
       # Checkout code
       - uses: actions/checkout@v3
 
+      - name: Verify Azure CLI
+        run: |
+          az account show
+          az account list -o table
+
       # Log into Azure
       - name: Azure Login
         uses: azure/login@v1
@@ -18,7 +23,7 @@ jobs:
       - name: Verify Azure CLI
         run: |
           az account show
-          az account list
+          az account list -o table
 
       # Deploy Bicep file
       - name: Create Resources
